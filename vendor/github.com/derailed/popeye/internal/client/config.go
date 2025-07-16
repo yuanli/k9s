@@ -157,8 +157,8 @@ func (c *Config) CurrentClusterName() (string, error) {
 		current = *c.flags.Context
 	}
 
-	if ctx, ok := cfg.Contexts[current]; ok {
-		return ctx.Cluster, nil
+	if ct, ok := cfg.Contexts[current]; ok {
+		return ct.Cluster, nil
 	}
 
 	return "", errors.New("unable to locate current cluster")
@@ -234,25 +234,22 @@ func (c *Config) CurrentUserName() (string, error) {
 
 // CurrentNamespaceName retrieves the active namespace.
 func (c *Config) CurrentNamespaceName() (string, error) {
-	if c.flags.Namespace != nil {
+	if isSet(c.flags.Namespace) {
 		return *c.flags.Namespace, nil
 	}
 
 	cfg, err := c.RawConfig()
 	if err != nil {
-		return "", err
+		return DefaultNamespace, err
 	}
-	ctx, err := c.CurrentContextName()
-	if err != nil {
-		return "", err
-	}
-	if ctx, ok := cfg.Contexts[ctx]; ok {
-		if isSet(&ctx.Namespace) {
-			return ctx.Namespace, nil
+	if ct, ok := cfg.Contexts[cfg.CurrentContext]; ok {
+		if ct.Namespace == BlankNamespace {
+			return DefaultNamespace, nil
 		}
+		return ct.Namespace, nil
 	}
 
-	return "", fmt.Errorf("No active namespace specified")
+	return DefaultNamespace, fmt.Errorf("invalid context specified: %q", cfg.CurrentContext)
 }
 
 // NamespaceNames fetch all available namespaces on current cluster.
