@@ -1,3 +1,10 @@
+## local build commands
+```cmd
+set CGO_ENABLED=0 
+go build -mod=vendor -ldflags "-w -s -X github.com/derailed/k9s/cmd.version=v0.40.5 -X github.com/derailed/k9s/cmd.commit=af8aa5fc -X github.com/derailed/k9s/cmd.date=" -a -tags=netgo -o execs/k9s.exe main.go
+```
+using cmd environment, and execute `chcp 65001` before start k9s.
+
 <img src="assets/k9s.png" alt="k9s">
 
 ## K9s - Kubernetes CLI To Manage Your Clusters In Style!
